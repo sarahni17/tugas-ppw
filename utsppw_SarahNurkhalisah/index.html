@@ -8,6 +8,7 @@
     .hidden { display: none; }
     form { margin-bottom: 20px; }
     input { display: block; margin-bottom: 10px; }
+    img { max-width: 150px; display: block; margin-bottom: 10px; }
   </style>
 </head>
 <body onload="initApp()">
@@ -21,7 +22,8 @@
       <input type="text" id="regPhone" placeholder="Nomor Telepon" pattern="\d+" required>
       <input type="date" id="regDOB" required>
       <input type="text" id="regFullname" placeholder="Nama Lengkap" required>
-      <input type="text" id="regAddress" placeholder="Alamat Lengkap" required> <!-- Tambahan -->
+      <input type="text" id="regAddress" placeholder="Alamat Lengkap" required>
+      <input type="file" id="regPhoto" accept="image/*" required>
       <button type="submit">Daftar</button>
     </form>
   </div>
@@ -39,11 +41,12 @@
   <!-- Halaman Profil -->
   <div id="profilePage" class="hidden">
     <h2>Profil Pengguna</h2>
+    <img id="profilePhoto" src="" alt="Foto Profil">
     <p><strong>Nama Lengkap:</strong> <span id="profileFullname"></span></p>
     <p><strong>Email:</strong> <span id="profileEmail"></span></p>
     <p><strong>Nomor Telepon:</strong> <span id="profilePhone"></span></p>
     <p><strong>Tanggal Lahir:</strong> <span id="profileDOB"></span></p>
-    <p><strong>Alamat Lengkap:</strong> <span id="profileAddress"></span></p> <!-- Tambahan -->
+    <p><strong>Alamat Lengkap:</strong> <span id="profileAddress"></span></p>
     <button onclick="logout()">Logout</button>
   </div>
 
@@ -67,17 +70,29 @@
 
     function registerUser(e) {
       e.preventDefault();
-      const user = {
-        email: document.getElementById("regEmail").value,
-        password: document.getElementById("regPassword").value,
-        phone: document.getElementById("regPhone").value,
-        dob: document.getElementById("regDOB").value,
-        fullname: document.getElementById("regFullname").value,
-        address: document.getElementById("regAddress").value // Tambahan
+      const photoInput = document.getElementById("regPhoto");
+      const reader = new FileReader();
+
+      reader.onload = function () {
+        const user = {
+          email: document.getElementById("regEmail").value,
+          password: document.getElementById("regPassword").value,
+          phone: document.getElementById("regPhone").value,
+          dob: document.getElementById("regDOB").value,
+          fullname: document.getElementById("regFullname").value,
+          address: document.getElementById("regAddress").value,
+          photo: reader.result // Base64 image
+        };
+        localStorage.setItem("user", JSON.stringify(user));
+        alert("Registrasi berhasil!");
+        showPage("loginPage");
       };
-      localStorage.setItem("user", JSON.stringify(user));
-      alert("Registrasi berhasil!");
-      showPage("loginPage");
+
+      if (photoInput.files.length > 0) {
+        reader.readAsDataURL(photoInput.files[0]);
+      } else {
+        alert("Silakan unggah foto profil.");
+      }
     }
 
     function loginUser(e) {
@@ -103,7 +118,8 @@
       document.getElementById("profileEmail").textContent = user.email;
       document.getElementById("profilePhone").textContent = user.phone;
       document.getElementById("profileDOB").textContent = user.dob;
-      document.getElementById("profileAddress").textContent = user.address; // Tambahan
+      document.getElementById("profileAddress").textContent = user.address;
+      document.getElementById("profilePhoto").src = user.photo || "";
     }
 
     function logout() {
