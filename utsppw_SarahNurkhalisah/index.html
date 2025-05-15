@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Webpage</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .hidden { display: none; }
+    form { margin-bottom: 20px; }
+    input { display: block; margin-bottom: 10px; }
+  </style>
+</head>
+<body onload="initApp()">
+
+  <!-- Halaman Registrasi -->
+  <div id="registerPage">
+    <h2>Registrasi</h2>
+    <form onsubmit="registerUser(event)">
+      <input type="email" id="regEmail" placeholder="Email" required>
+      <input type="password" id="regPassword" placeholder="Kata Sandi" required>
+      <input type="text" id="regPhone" placeholder="Nomor Telepon" pattern="\d+" required>
+      <input type="date" id="regDOB" required>
+      <input type="text" id="regFullname" placeholder="Nama Lengkap" required>
+      <input type="text" id="regAddress" placeholder="Alamat Lengkap" required> <!-- Tambahan -->
+      <button type="submit">Daftar</button>
+    </form>
+  </div>
+
+  <!-- Halaman Login -->
+  <div id="loginPage" class="hidden">
+    <h2>Login</h2>
+    <form onsubmit="loginUser(event)">
+      <input type="email" id="loginEmail" placeholder="Email" required>
+      <input type="password" id="loginPassword" placeholder="Kata Sandi" required>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <!-- Halaman Profil -->
+  <div id="profilePage" class="hidden">
+    <h2>Profil Pengguna</h2>
+    <p><strong>Nama Lengkap:</strong> <span id="profileFullname"></span></p>
+    <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+    <p><strong>Nomor Telepon:</strong> <span id="profilePhone"></span></p>
+    <p><strong>Tanggal Lahir:</strong> <span id="profileDOB"></span></p>
+    <p><strong>Alamat Lengkap:</strong> <span id="profileAddress"></span></p> <!-- Tambahan -->
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    function initApp() {
+      const loggedIn = sessionStorage.getItem("loggedIn");
+      if (loggedIn === "true") {
+        showPage("profilePage");
+        loadProfile();
+      } else {
+        showPage("registerPage");
+      }
+    }
+
+    function showPage(pageId) {
+      document.getElementById("registerPage").classList.add("hidden");
+      document.getElementById("loginPage").classList.add("hidden");
+      document.getElementById("profilePage").classList.add("hidden");
+      document.getElementById(pageId).classList.remove("hidden");
+    }
+
+    function registerUser(e) {
+      e.preventDefault();
+      const user = {
+        email: document.getElementById("regEmail").value,
+        password: document.getElementById("regPassword").value,
+        phone: document.getElementById("regPhone").value,
+        dob: document.getElementById("regDOB").value,
+        fullname: document.getElementById("regFullname").value,
+        address: document.getElementById("regAddress").value // Tambahan
+      };
+      localStorage.setItem("user", JSON.stringify(user));
+      alert("Registrasi berhasil!");
+      showPage("loginPage");
+    }
+
+    function loginUser(e) {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      if (user && email === user.email && password === user.password) {
+        sessionStorage.setItem("loggedIn", "true");
+        showPage("profilePage");
+        loadProfile();
+      } else {
+        alert("Email atau kata sandi salah.");
+      }
+    }
+
+    function loadProfile() {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) return;
+
+      document.getElementById("profileFullname").textContent = user.fullname;
+      document.getElementById("profileEmail").textContent = user.email;
+      document.getElementById("profilePhone").textContent = user.phone;
+      document.getElementById("profileDOB").textContent = user.dob;
+      document.getElementById("profileAddress").textContent = user.address; // Tambahan
+    }
+
+    function logout() {
+      sessionStorage.removeItem("loggedIn");
+      alert("Logout berhasil.");
+      showPage("loginPage");
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+</body>
+</html>
